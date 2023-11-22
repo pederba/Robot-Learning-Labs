@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /root/robot_learning_ws/install/setup.sh
