@@ -1,0 +1,8 @@
+{
+    "name": "ROS Dev Container",
+    "dockerFile": "Dockerfile",
+    "settings": {
+      "python.pythonPath": "/usr/bin/python3"
+    },
+    "extensions": ["ms-iot.vscode-ros"]
+}
