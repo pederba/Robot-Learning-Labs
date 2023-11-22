@@ -131,7 +131,9 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/root/robot_learning_ws/build/gtest/cmake_install.cmake")
-  include("/root/robot_learning_ws/build/ex1_pkg/cmake_install.cmake")
+  include("/root/robot_learning_ws/build/ekf_node/cmake_install.cmake")
+  include("/root/robot_learning_ws/build/pendulum/cmake_install.cmake")
+  include("/root/robot_learning_ws/build/sensor/cmake_install.cmake")
 
 endif()
 

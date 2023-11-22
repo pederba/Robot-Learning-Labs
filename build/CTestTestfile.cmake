@@ -5,4 +5,6 @@
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
-subdirs("ex1_pkg")
+subdirs("ekf_node")
+subdirs("pendulum")
+subdirs("sensor")

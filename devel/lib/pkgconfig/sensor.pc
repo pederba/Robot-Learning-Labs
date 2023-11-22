@@ -1,0 +1,8 @@
+prefix=/root/robot_learning_ws/devel
+
+Name: sensor
+Description: Description of sensor
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

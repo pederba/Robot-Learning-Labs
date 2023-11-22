@@ -1,2 +1,2 @@
-ex1_pkg
+ekf_node:pendulum:sensor
 -DCATKIN_DEVEL_PREFIX=/root/robot_learning_ws/devel -DCMAKE_INSTALL_PREFIX=/root/robot_learning_ws/install -G Unix Makefiles
