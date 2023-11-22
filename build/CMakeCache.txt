@@ -458,6 +458,12 @@ gtest_hide_internal_symbols:BOOL=OFF
 //Dependencies for the target
 gtest_main_LIB_DEPENDS:STATIC=general;gtest;
 
+//Value Computed by CMake
+lab01_pkg_BINARY_DIR:STATIC=/root/robot_learning_ws/build/lab01_pkg
+
+//Value Computed by CMake
+lab01_pkg_SOURCE_DIR:STATIC=/root/robot_learning_ws/src/lab01_pkg
+
 //Path to a library.
 lib:FILEPATH=/opt/ros/noetic/lib/librostime.so
 
@@ -651,7 +657,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=7
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=5
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

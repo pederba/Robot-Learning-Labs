@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rospy
 import numpy as np
 from scipy.integrate import odeint
@@ -7,13 +9,13 @@ class Pendulum(object):
     def __init__(self):
 
         self.true_state_publisher = rospy.Publisher('pendulum_true_state', Float64, queue_size=10)
-        rate = rospy.Rate(10)
+        self.rate = rospy.Rate(10)
 
         # Initial true state
         self.x0 = np.array([np.pi/3, 0.5])
 
     # System dynamics (continuous, non-linear) in state-space representation (https://en.wikipedia.org/wiki/State-space_representation)
-    def stateSpaceModel(x,t):
+    def stateSpaceModel(self, x, t):
         """
             Dynamics may be described as a system of first-order
             differential equations: 
@@ -37,5 +39,18 @@ class Pendulum(object):
 
         x_t_true=odeint(self.stateSpaceModel, self.x0, totalSimulationTimeVector)
 
-        self.true_state_publisher.publish(x_t_true)
+        for timestep in range(simulationSteps):
+            x_t_true_msg = Float64()
+            x_t_true_msg.data = x_t_true[timestep,1]
 
+            self.true_state_publisher.publish(x_t_true_msg)
+            self.rate.sleep()
+        
+        rospy.signal_shutdown("Simulation finished")
+        
+
+if __name__ == '__main__':
+    rospy.init_node('pendulum_node', anonymous=True)
+    pendulum = Pendulum()
+    pendulum.simulate_true_dynamics()
+    rospy.spin()

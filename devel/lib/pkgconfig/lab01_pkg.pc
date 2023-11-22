@@ -1,0 +1,8 @@
+prefix=/root/robot_learning_ws/devel
+
+Name: lab01_pkg
+Description: Description of lab01_pkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

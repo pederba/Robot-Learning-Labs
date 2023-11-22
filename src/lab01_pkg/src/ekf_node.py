@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
 """
     Implementation of the Extended Kalman Filter
     for an unactuated pendulum system
 """
 import numpy as np
 import rospy
-from std_msgs.msg import Float64MultiArray, Float64
+from std_msgs.msg import Float64
 
 
 class ExtendedKalmanFilter(object):
@@ -21,7 +22,7 @@ class ExtendedKalmanFilter(object):
             dT - discretization step for forward dynamics
         """
 
-        self.estimate_publisher = rospy.Publisher('ekf_estimate', Float64MultiArray, queue_size=10)
+        self.estimate_publisher = rospy.Publisher('ekf_estimate', Float64, queue_size=10)
         rospy.Subscriber('pendulum_measurement', Float64, self.measurementCallback)
 
         self.x0=x0
@@ -35,30 +36,24 @@ class ExtendedKalmanFilter(object):
         self.l = 1  # Length of the pendulum 
         
         self.currentTimeStep = 0
-        
 
-        self.priorMeans = []
-        self.priorMeans.append(None)  # no prediction step for timestep=0
-        self.posteriorMeans = []
-        self.posteriorMeans.append(x0)
-        
-        self.priorCovariances=[]
-        self.priorCovariances.append(None)  # no prediction step for timestep=0
-        self.posteriorCovariances=[]
-        self.posteriorCovariances.append(P0)
-    
+        self.priorMean = 0
+        self.posteriorMean = x0
+        self.priorCovariance = 0
+        self.posteriorCovariance = P0
+
     
     def measurementCallback(self, msg):
         self.forwardDynamics()
         z_t = msg.data
         self.updateEstimate(z_t)
-        msg = Float64MultiArray()
-        msg.data = np.array([self.posteriorMean[0,0], self.posteriorMean[1,0]])
-        self.get_logger().info('Estimate: "%s"' % msg.data)
+        msg = Float64()
+        msg.data = self.posteriorMean
+        print('Estimate: ', self.posteriorMean, '\n')
         self.estimate_publisher.publish(msg)
 
 
-    def stateSpaceModel(self, x):
+    def stateSpaceModel(self, x, t):
         """
             Dynamics may be described as a system of first-order
             differential equations: 
@@ -125,21 +120,20 @@ class ExtendedKalmanFilter(object):
         """
             Predict the new prior mean for timestep t
         """
-        x_t_prior_mean = self.discreteTimeDynamics(self.posteriorMeans[self.currentTimeStep-1])
+        x_t_prior_mean = self.discreteTimeDynamics(self.posteriorMean)
         
-
         """
             Predict the new prior covariance for timestep t
         """
         # Linearization: jacobian of the dynamics at the current a posteriori estimate
-        A_t_minus = self.jacobianStateEquation(self.posteriorMeans[self.currentTimeStep-1])
+        A_t_minus = self.jacobianStateEquation(self.posteriorMean)
 
         # Propagate the covariance matrix forward in time
-        x_t_prior_cov = A_t_minus @ self.posteriorCovariances[self.currentTimeStep-1] @ A_t_minus.T + self.Q
+        x_t_prior_cov = A_t_minus @ self.posteriorCovariance @ A_t_minus.T + self.Q
         
         # Save values
-        self.priorMeans.append(x_t_prior_mean)
-        self.priorCovariances.append(x_t_prior_cov)
+        self.priorMean = x_t_prior_mean
+        self.priorCovariance = x_t_prior_cov
     
 
     def updateEstimate(self, z_t):
@@ -149,20 +143,20 @@ class ExtendedKalmanFilter(object):
         """
 
         # Jacobian of measurement model at x_t
-        Ct = self.jacobianMeasurementEquation(self.priorMeans[self.currentTimeStep]) 
+        Ct = self.jacobianMeasurementEquation()
         
         # TODO: Compute the Kalman gain matrix
-        K_t = self.priorCovariances[self.currentTimeStep] @ Ct.T @ np.linalg.inv(Ct @ self.priorCovariances[self.currentTimeStep] @ Ct.T + self.R)
+        K_t = self.priorCovariance @ Ct.T @ np.linalg.inv(Ct @ self.priorCovariance @ Ct.T + self.R)
         
         # TODO: Compute posterior mean
-        x_t_mean = self.priorMeans[self.currentTimeStep] + K_t @ (z_t - Ct @ self.priorMeans[self.currentTimeStep])
+        x_t_mean = self.priorMean + K_t @ (z_t - Ct @ self.priorMean)
         
         # TODO: Compute posterior covariance
-        x_t_cov = (np.eye(2,2) - K_t @ Ct) @ self.priorCovariances[self.currentTimeStep]
-        
+        x_t_cov = (np.eye(2,2) - K_t @ Ct) @ self.priorCovariance
+
         # Save values
-        self.posteriorMeans.append(x_t_mean)
-        self.posteriorCovariances.append(x_t_cov)
+        self.posteriorMean = x_t_mean
+        self.posteriorCovariance = x_t_cov
 
 def init_EKF():
     x0 = np.array([[np.pi/2], [0]])  # initial state
@@ -185,7 +179,7 @@ def init_EKF():
 
     return EKF
 
-if __name__ == 'main':
+if __name__ == '__main__':
     rospy.init_node('ekf_node')
     EKF = init_EKF()
     rospy.spin()
